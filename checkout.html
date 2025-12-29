@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Pagamento</title>
+  <link rel="stylesheet" href="css/style.css">
+  <script src="js/data.js" defer></script>
+  <script src="js/app.js" defer></script>
+</head>
+<body>
+  <header>
+    <h1>Pagamento</h1>
+    <nav>
+      <a href="cart.html">Voltar ao carrinho</a>
+    </nav>
+  </header>
+
+  <main>
+    <form id="checkout-form" class="checkout-form">
+      <label>Nome completo
+        <input name="nome" type="text" required />
+      </label>
+      <label>Telefone
+        <input name="telefone" type="text" required />
+      </label>
+      <label>CPF (opcional)
+        <input name="cpf" type="text" />
+      </label>
+      <label>Endereço completo
+        <textarea name="endereco" rows="3" required></textarea>
+      </label>
+      <fieldset class="payment-methods">
+        <legend>Forma de pagamento</legend>
+        <label><input type="radio" name="payment_method" value="cartao"> Cartão</label>
+        <label><input type="radio" name="payment_method" value="pix"> Pix</label>
+      </fieldset>
+
+      <!-- Apenas selecione a forma de pagamento — sem campos extras aqui -->
+      <div class="form-actions">
+        <button type="submit" class="btn">Finalizar compra</button>
+      </div>
+    </form>
+    <section id="checkout-summary"></section>
+  </main>
+
+  <footer></footer>
+</body>
+</html>

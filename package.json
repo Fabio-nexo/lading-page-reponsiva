@@ -1,0 +1,11 @@
+{
+  "name": "shop",
+  "version": "1.0.0",
+  "description": "Breve projeto estático de loja com páginas: `index.html`, `cart.html`, `checkout.html`.",
+  "scripts": {
+    "start": "live-server"
+  },
+  "devDependencies": {
+    "live-server": "^1.2.2"
+  }
+}
