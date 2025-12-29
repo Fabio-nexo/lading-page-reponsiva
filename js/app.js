@@ -247,10 +247,42 @@ function initCheckout(){const form = document.getElementById('checkout-form'); i
     let paymentSummary = '';
     if(method === 'cartao') paymentSummary = `<p>Forma de pagamento: Cartão</p>`;
     else if(method === 'pix') paymentSummary = `<p>Forma de pagamento: Pix</p>`;
-    else if(method === 'dinheiro') paymentSummary = `<p>Forma de pagamento: Dinheiro</p>` + (data.troco ? `<p>Troco para: ${formatCurrency(Number(data.troco)||0)}</p>` : '');
+    else if(method === 'dinheiro'){
+      const trocoAmount = Number(String(data.troco||'').replace(',','.')) || 0;
+      paymentSummary = `<p>Forma de pagamento: Dinheiro</p>`;
+      if(trocoAmount > 0){
+        paymentSummary += `<p>Troco para: ${formatCurrency(trocoAmount)}</p>`;
+        const change = trocoAmount - total;
+        if(change >= 0){
+          paymentSummary += `<p>Troco a devolver: ${formatCurrency(change)}</p>`;
+        } else {
+          paymentSummary += `<p style="color:#a00">Valor informado insuficiente. Falta: ${formatCurrency(Math.abs(change))}</p>`;
+        }
+      }
+    }
 
-    summary.innerHTML = `<h3>Resumo</h3><p>Nome: ${data.nome}</p><p>Telefone: ${data.telefone}</p><p>CPF: ${data.cpf}</p><p>Endereço: ${enderecoText}</p>${paymentSummary}<p>Total: ${formatCurrency(total)}</p><p>Compra finalizada (simulada).</p>`;
+    // Monta relatório de sucesso e mostra na tela
+    const reportHtml = `
+      <h3>Compra finalizada com sucesso</h3>
+      <p>Nome: ${data.nome}</p>
+      <p>Telefone: ${data.telefone}</p>
+      <p>CPF: ${data.cpf}</p>
+      <p>Endereço: ${enderecoText}</p>
+      ${paymentSummary}
+      <p>Total: ${formatCurrency(total)}</p>
+      <p>Obrigado! Você será redirecionado para a loja em alguns segundos.</p>
+      <p><a href="index.html" class="btn" id="back-now">Voltar para a loja agora</a></p>
+    `;
+    summary.innerHTML = reportHtml;
+
+    // Limpa carrinho e atualiza contadores antes do redirecionamento
     localStorage.removeItem(CART_KEY); updateCartCount();
+
+    // Redireciona automaticamente após 5 segundos
+    const redirectMs = 5000;
+    const backNow = document.getElementById('back-now');
+    if(backNow) backNow.addEventListener('click', ()=>{ /* link already naviga */ });
+    setTimeout(()=>{ window.location.href = 'index.html'; }, redirectMs);
   });
 }
 
