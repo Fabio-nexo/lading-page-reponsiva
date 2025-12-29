@@ -1,6 +1,6 @@
 :root{--accent:#D4AF37;--muted:#666}
 *{box-sizing:border-box}
-body{font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial;line-height:1.4;margin:0;padding:0;color:#e6e6e6;background:#000000}
+  body{font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial;line-height:1.4;margin:0;padding:0;color:#e6e6e6;background:#000000}
 
 header{
   display:flex;

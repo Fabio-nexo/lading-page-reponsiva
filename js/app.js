@@ -198,8 +198,38 @@ function renderCart(){const container = document.getElementById('cart'); if(!con
 }
 
 function initCheckout(){const form = document.getElementById('checkout-form'); if(!form) return;
+  // Lógica para exibir troco quando pagamento em dinheiro e para preencher endereço a partir do CEP (ViaCEP)
+  const trocoField = document.getElementById('troco-field');
+  const paymentRadios = form.querySelectorAll('input[name="payment_method"]');
+  function updatePaymentUI(){
+    const sel = form.querySelector('input[name="payment_method"]:checked');
+    if(sel && sel.value === 'dinheiro'){
+      if(trocoField) trocoField.style.display = 'block';
+    } else {
+      if(trocoField){ trocoField.style.display = 'none'; const t = form.querySelector('input[name="troco"]'); if(t) t.value = ''; }
+    }
+  }
+  paymentRadios.forEach(r=>r.addEventListener('change',updatePaymentUI));
+  updatePaymentUI();
 
-  // Não são necessários campos de pagamento adicionais; apenas a seleção da rádio é utilizada.
+  // Busca automática de endereço via ViaCEP ao sair do campo CEP
+  const cepInput = form.querySelector('input[name="cep"]');
+  if(cepInput){
+    cepInput.addEventListener('blur', async ()=>{
+      const raw = (cepInput.value||'').replace(/\D/g,'');
+      if(raw.length !== 8) return;
+      try{
+        const res = await fetch(`https://viacep.com.br/ws/${raw}/json/`);
+        if(!res.ok) throw new Error('HTTP '+res.status);
+        const data = await res.json();
+        if(data.erro){ alert('CEP não encontrado'); return; }
+        const rua = form.querySelector('input[name="rua"]');
+        const bairro = form.querySelector('input[name="bairro"]');
+        if(rua) rua.value = data.logradouro || '';
+        if(bairro) bairro.value = data.bairro || '';
+      }catch(err){ console.error('Erro ao buscar CEP:',err); }
+    });
+  }
 
   form.addEventListener('submit',e=>{
     e.preventDefault(); const data = Object.fromEntries(new FormData(form).entries());
@@ -211,9 +241,15 @@ function initCheckout(){const form = document.getElementById('checkout-form'); i
     const total = cart.reduce((s,i)=>{
       const p = PRODUCTS.find(x=>x.id===i.id); return s + (p? p.price * i.quantity : 0);
     },0);
-    // criar resumo da forma de pagamento
-    const paymentSummary = method === 'cartao' ? `<p>Forma de pagamento: Cartão</p>` : `<p>Forma de pagamento: Pix</p>`;
-    summary.innerHTML = `<h3>Resumo</h3><p>Nome: ${data.nome}</p><p>Telefone: ${data.telefone}</p><p>CPF: ${data.cpf}</p><p>Endereço: ${data.endereco}</p>${paymentSummary}<p>Total: ${formatCurrency(total)}</p><p>Compra finalizada (simulada).</p>`;
+    // montar endereço a partir dos campos
+    const enderecoText = `${data.cep || ''} - ${data.rua || ''}, ${data.numero || ''} - ${data.bairro || ''}`;
+    // criar resumo da forma de pagamento (inclui troco quando aplicável)
+    let paymentSummary = '';
+    if(method === 'cartao') paymentSummary = `<p>Forma de pagamento: Cartão</p>`;
+    else if(method === 'pix') paymentSummary = `<p>Forma de pagamento: Pix</p>`;
+    else if(method === 'dinheiro') paymentSummary = `<p>Forma de pagamento: Dinheiro</p>` + (data.troco ? `<p>Troco para: ${formatCurrency(Number(data.troco)||0)}</p>` : '');
+
+    summary.innerHTML = `<h3>Resumo</h3><p>Nome: ${data.nome}</p><p>Telefone: ${data.telefone}</p><p>CPF: ${data.cpf}</p><p>Endereço: ${enderecoText}</p>${paymentSummary}<p>Total: ${formatCurrency(total)}</p><p>Compra finalizada (simulada).</p>`;
     localStorage.removeItem(CART_KEY); updateCartCount();
   });
 }
