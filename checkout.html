@@ -27,16 +27,34 @@
       <label>CPF (opcional)
         <input name="cpf" type="text" />
       </label>
-      <label>Endereço completo
-        <textarea name="endereco" rows="3" required></textarea>
-      </label>
+
+      <div class="address-group">
+        <label>CEP
+          <input name="cep" id="cep" type="text" placeholder="00000-000" required />
+        </label>
+        <label>Rua
+          <input name="rua" id="rua" type="text" required />
+        </label>
+        <label>Número
+          <input name="numero" id="numero" type="text" required />
+        </label>
+        <label>Bairro
+          <input name="bairro" id="bairro" type="text" required />
+        </label>
+      </div>
+
       <fieldset class="payment-methods">
         <legend>Forma de pagamento</legend>
         <label><input type="radio" name="payment_method" value="cartao"> Cartão</label>
         <label><input type="radio" name="payment_method" value="pix"> Pix</label>
+        <label><input type="radio" name="payment_method" value="dinheiro"> Dinheiro</label>
       </fieldset>
 
-      <!-- Apenas selecione a forma de pagamento — sem campos extras aqui -->
+      <label id="troco-field" style="display:none">Troco para quanto?
+        <input name="troco" type="number" step="0.01" min="0" placeholder="0,00" />
+      </label>
+
+      <!-- Campos adicionais: CEP preenche rua/bairro via ViaCEP; troco aparece só para dinheiro -->
       <div class="form-actions">
         <button type="submit" class="btn">Finalizar compra</button>
       </div>
